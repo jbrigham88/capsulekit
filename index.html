@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Take a quick quiz and get a seasonal capsule wardrobe in your best colors, with a week of outfits and a shopping link for every piece.">
+<meta property="og:title" content="Capsule Kit">
+<meta property="og:description" content="Everything you need for the season in one quick quiz.">
+<meta name="theme-color" content="#1F5A4E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%231F5A4E'/%3E%3Cpath d='M17 12 Q24 17 31 12 L40 17 L37 24 L33 22 L33 38 L15 38 L15 22 L11 24 L8 17 Z' fill='%23F4F2EE'/%3E%3C/svg%3E">
+<title>Capsule Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single tailored column; quiz is one question per screen, results read like a fitting report with hang-tag item cards. */
+:root{
+  --bg:#EEF1F4; --surface:#FFFFFF; --ink:#18202C; --muted:#586274; --line:#D3D9E1;
+  --accent:#1F5A4E; --accent-ink:#FFFFFF; --accent-soft:#DCEBE6; --tile:#E4E9EF; --warn:#9A3B2E; --gold:#8A6A1F;
+  --display:"Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141A; --surface:#181E26; --ink:#E6EAF0; --muted:#98A2B3; --line:#2A333F;
+  --accent:#74C3AE; --accent-ink:#0D1A17; --accent-soft:#1D3530; --tile:#222A35; --warn:#E39486; --gold:#D9B860; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141A; --surface:#181E26; --ink:#E6EAF0; --muted:#98A2B3; --line:#2A333F;
+  --accent:#74C3AE; --accent-ink:#0D1A17; --accent-soft:#1D3530; --tile:#222A35; --warn:#E39486; --gold:#D9B860; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:780px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 64px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:28px;flex-wrap:wrap}
+.mark{font-family:var(--display);font-size:1.45rem;letter-spacing:.01em}
+.mark i{color:var(--accent)}
+.mono{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(2.1rem,6vw,3.2rem);line-height:1.08}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(1.5rem,4vw,1.9rem);line-height:1.15}
+h3{font-size:1rem;font-weight:600}
+p{margin:0}
+.lede{color:var(--muted);max-width:60ch}
+button,a.btn{font:inherit;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:12px 22px;font-weight:600;border:1px solid transparent;text-decoration:none;transition:transform .15s, background .15s}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-sm{padding:8px 16px;font-size:.88rem}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+/* intro */
+.intro{display:grid;gap:22px}
+.strip{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;max-width:520px}
+.strip span{aspect-ratio:3/4;border-radius:4px;border:1px solid var(--line)}
+.promise{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.promise div{background:var(--surface);padding:14px 16px;min-width:0}
+.promise b{display:block;font-weight:600;margin-bottom:2px}
+.promise small{color:var(--muted);font-size:.88rem}
+
+/* quiz */
+.progress{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:22px}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.qhead{display:grid;gap:8px;margin-bottom:22px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0;transition:border-color .15s, background .15s}
+.opt:hover{border-color:var(--muted)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt .dot{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--line)}
+.opt .t{display:block;font-weight:600}
+.opt .h{display:block;color:var(--muted);font-size:.86rem;line-height:1.35}
+.opt .flag{margin-left:auto;font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:2px 8px;flex:none}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:12px}
+.linkbtn{background:none;border:0;color:var(--muted);padding:6px 0;text-decoration:underline;text-underline-offset:3px;font-size:.88rem}
+.linkbtn:hover{color:var(--ink)}
+
+/* results */
+section.block{margin-top:44px;display:grid;gap:16px}
+.sechead{display:grid;gap:4px}
+.hero{display:grid;gap:14px}
+.meters{display:grid;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.meter{display:grid;grid-template-columns:90px 1fr;gap:6px 14px;align-items:center}
+.meter .lab{font-weight:600;font-size:.92rem}
+.track{position:relative;height:8px;border-radius:4px}
+.track b{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--surface);border:3px solid var(--ink);transform:translate(-50%,-50%)}
+.ends{grid-column:2;display:flex;justify-content:space-between;font-family:var(--mono);font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.palette{display:grid;gap:18px}
+.swrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:10px;max-width:640px}
+.sw{display:grid;gap:6px;min-width:0}
+.sw span{aspect-ratio:1;border-radius:8px;border:1px solid var(--line)}
+.sw b{font-weight:500;font-size:.86rem;line-height:1.2}
+.sw code{font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.avoid{color:var(--muted);font-size:.92rem}
+.avoid strong{color:var(--warn);font-weight:600}
+
+.summary{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:baseline;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+.summary .num{font-family:var(--display);font-size:1.6rem;font-variant-numeric:tabular-nums}
+.summary small{color:var(--muted);display:block;font-size:.8rem}
+.disclosure{font-size:.8rem;color:var(--muted)}
+.collage{margin:0;display:grid;gap:10px;justify-items:start}
+.collage canvas{width:100%;max-width:520px;height:auto;aspect-ratio:4/5;border-radius:10px;border:1px solid var(--line);background:#F4F2EE;box-shadow:0 10px 30px rgba(20,24,32,.10)}
+.catlabel{font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px;padding-bottom:6px;border-bottom:1px dashed var(--line)}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+@media (max-width:420px){.items{grid-template-columns:1fr}}
+.tag{position:relative;display:grid;grid-template-columns:76px 1fr;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:6px 14px 14px 6px;padding:14px;min-width:0;align-content:start}
+.tag.open{grid-column:1/-1;border-color:var(--accent)}
+.tag.owned .ic,.tag.owned .body>*:not(.actions){opacity:.55}
+.tag .ic{width:76px;height:92px;border-radius:6px;background:var(--tile);display:grid;place-items:center;color:var(--ink);position:relative}
+.tag .ic::before{content:"";position:absolute;top:7px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
+.tag .ic svg{width:54px;height:54px;margin-top:8px}
+.tag .body{display:grid;gap:6px;min-width:0;align-content:start}
+.tag h3{font-size:1rem;line-height:1.3}
+.badge{display:inline-block;font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:2px 8px;border:1px solid var(--gold);color:var(--gold);margin-left:6px;vertical-align:2px}
+.badge.edit{border-color:var(--accent);color:var(--accent)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--muted)}
+.chip i{width:12px;height:12px;border-radius:3px;border:1px solid var(--line);display:inline-block;flex:none}
+.why{font-size:.86rem;color:var(--muted);line-height:1.4}
+.shop{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:2px}
+.shop a{color:var(--accent);font-weight:600;font-size:.88rem;text-decoration:none;border-bottom:1px solid currentColor}
+.shop a.alt{color:var(--muted);font-weight:500;border-bottom-color:var(--line)}
+.price{font-family:var(--mono);font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.actions{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
+.own{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--muted);cursor:pointer}
+.own input{accent-color:var(--accent);width:16px;height:16px}
+
+.veto{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:14px;display:grid;gap:12px}
+.veto h4{margin:0;font-size:.95rem;font-weight:600}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:.86rem;display:inline-flex;align-items:center;gap:8px}
+.pill:hover{border-color:var(--muted)}
+.pill[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.pill i{width:14px;height:14px;border-radius:50%;border:1px solid var(--line);display:inline-block}
+.veto textarea{width:100%;min-height:72px;font:inherit;font-size:.92rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;resize:vertical}
+.veto .hint{font-size:.82rem;color:var(--muted)}
+.removed{font-size:.88rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+
+.week{display:grid;gap:10px}
+.day{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+@media (max-width:520px){.day{grid-template-columns:1fr}}
+.day .when b{display:block;font-family:var(--display);font-size:1.15rem;font-weight:400}
+.day .when span{font-size:.82rem;color:var(--muted)}
+.look{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-width:0}
+.mini{width:40px;height:44px;border-radius:5px;background:var(--tile);display:grid;place-items:center;color:var(--ink);flex:none;position:relative}
+.mini.st{box-shadow:inset 0 0 0 2px var(--gold)}
+.mini svg{width:30px;height:30px}
+.lookdesc{flex-basis:100%;font-size:.88rem;color:var(--muted);line-height:1.4}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:0}
+.note ul{margin:8px 0 0;padding-left:18px;display:grid;gap:6px;font-size:.92rem}
+.foot{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;display:grid;gap:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:.9rem;font-weight:500;z-index:20;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+.sitenav{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:.85rem;padding-block:8px 28px}.sitenav a{color:var(--muted)}</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark">Capsule <i>Kit</i></div>
+    <div class="mono">Seasonal capsule quiz</div>
+  </header>
+  <main id="app"></main>
+</div>
+<nav class="sitenav wrap" aria-label="Site"><a href="about.html">About</a><a href="privacy.html">Privacy</a></nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+/* ---------- settings ---------- */
+// Your Amazon Associates tracking ID, e.g. "capsulekit-20". Leave empty until you have one.
+const AFFILIATE_TAG='';
+
+/* ---------- storage helpers ---------- */
+const KEY='swatch-seam-v2';
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({answers:S.answers,owned:[...S.owned],over:S.over,view:S.view,step:S.step}))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const enc=encodeURIComponent;
+function amz(q,lo,hi){return `https://www.amazon.com/s?k=${enc(q)}&rh=p_36%3A${lo*100}-${hi*100}${AFFILIATE_TAG?'&tag='+enc(AFFILIATE_TAG):''}`}
+
+/* ---------- Claude (optional, for free-text swaps) ---------- */
+let SAMPLE=null;
+(async()=>{try{ if(window.claude&&window.claude.use){ SAMPLE=await window.claude.use('sample'); if(SAMPLE&&S.view==='results'&&S.veto) renderKeep(); } }catch(e){SAMPLE=null}})();
+
+/* ---------- seasons of the year ---------- */
+const NOW=new Date(), M=NOW.getMonth(), Y=NOW.getFullYear();
+const CUR = M===11||M<=1?'W':M<=4?'Sp':M<=7?'Su':'F';
+const NEXT = {W:'Sp',Sp:'Su',Su:'F',F:'W'}[CUR];
+const SEASON_NAME={W:'Winter',Sp:'Spring',Su:'Summer',F:'Fall'};
+function seasonLabel(c){
+  if(c==='W'){const y = M<=1? Y-1 : Y; return `Winter ${y}–${String(y+1).slice(2)}`}
+  const end={Sp:4,Su:7,F:10}[c]; return `${SEASON_NAME[c]} ${M<=end?Y:Y+1}`;
+}
+
+/* ---------- quiz ---------- */
+const hasStaples=a=>(a.staples||[]).some(x=>x!=='none');
+const Q=[
+ {id:'dressFor',title:'Who are we dressing?',sub:'Sets the cut and sizing of every piece we suggest.',type:'single',opts:[
+   {v:'women',t:"Women's clothing"},{v:'men',t:"Men's clothing"},{v:'neutral',t:'Gender-neutral',h:'Unisex cuts, no dresses or skirts'}]},
+ {id:'season',title:'Which season are you building for?',sub:'Your capsule is planned for one season at a time.',type:'single',opts:['W','Sp','Su','F'].map(c=>({v:c,t:seasonLabel(c),flag:c===NEXT?'Up next':c===CUR?'Now':''}))},
+ {id:'climate',title:'What is the weather like where you live?',type:'single',opts:[
+   {v:'mildwet',t:'Mild and rainy',h:'Pacific Northwest, UK, coastal'},{v:'cold',t:'Cold, with snow',h:'Real winters below freezing'},
+   {v:'milddry',t:'Mild and dry',h:'Cool mornings, sunny days'},{v:'hot',t:'Warm most of the year',h:'Rarely needs a heavy coat'}]},
+ {id:'life',title:'Where do your days actually go?',sub:'Pick up to 3.',type:'multi',max:3,opts:[
+   {v:'office',t:'Office or client-facing'},{v:'home',t:'Working from home'},{v:'errands',t:'Errands, kids, school runs'},
+   {v:'active',t:'Walking, hiking, outdoors'},{v:'social',t:'Dinners and evenings out'}]},
+ {id:'style',title:'Which styles feel most like you?',sub:'Pick up to 2.',type:'multi',max:2,opts:[
+   {v:'classic',t:'Classic',h:'Tailored, timeless, polished'},{v:'relaxed',t:'Relaxed',h:'Easy, comfortable, casual'},
+   {v:'minimal',t:'Minimal',h:'Clean lines, few colors'},{v:'romantic',t:'Romantic',h:'Soft fabrics, flow, detail'},
+   {v:'edgy',t:'Edgy',h:'Leather, black, strong shapes'},{v:'boho',t:'Boho',h:'Earthy, layered, textured'}]},
+ {id:'staples',title:'What do you wear on repeat?',sub:'Pick up to 4. We will build these into your week.',type:'multi',max:4,opts:[
+   {v:'none',t:'Nothing in particular',excl:true},{v:'leggings',t:'Leggings',only:'women'},{v:'joggers',t:'Joggers'},
+   {v:'sweatshirt',t:'Crewneck sweatshirts'},{v:'hoodie',t:'Hoodies'},{v:'qzip',t:'Quarter-zips'},
+   {v:'jeans',t:'Jeans'},{v:'graphictee',t:'Graphic tees'},{v:'flannel',t:'Flannel shirts'},
+   {v:'vest',t:'Puffer vest'},{v:'sneaker',t:'White sneakers'},{v:'clogs',t:'Clogs'}]},
+ {id:'refresh',when:hasStaples,title:'Should we suggest new versions of those?',type:'single',opts:[
+   {v:'refresh',t:'Yes, find fresh ones',h:'Shown in my colors, with shopping links'},{v:'keep',t:'No, I have them',h:'Just style them into my outfits'}]},
+ {id:'skin',title:'How would you describe your skin?',type:'single',opts:[
+   {v:0,t:'Very fair',sw:'#F6E1D3'},{v:1,t:'Light',sw:'#EBC8B0'},{v:2,t:'Medium',sw:'#D1A27F'},{v:3,t:'Tan or olive',sw:'#B07C55'},{v:4,t:'Deep',sw:'#6B4429'}]},
+ {id:'hair',title:'What is your natural hair color?',sub:'Choose the color it grows in, or grey if it has gone grey.',type:'single',opts:[
+   {v:'platinum',t:'Platinum or light blonde',sw:'#E8DDBF'},{v:'golden',t:'Golden or strawberry blonde',sw:'#D9B26A'},
+   {v:'ash',t:'Ash blonde or light brown',sw:'#A89276'},{v:'medium',t:'Medium or chestnut brown',sw:'#6E4B32'},
+   {v:'dark',t:'Dark brown',sw:'#3B2618'},{v:'black',t:'Black',sw:'#141010'},
+   {v:'red',t:'Red or auburn',sw:'#9A3F22'},{v:'grey',t:'Grey or silver',sw:'#BDBDBD'}]},
+ {id:'eyes',title:'What are your eyes like?',type:'single',opts:[
+   {v:'clearblue',t:'Clear blue or grey',h:'Bright, almost sparkly',sw:'#5B8DB8'},{v:'cleargreen',t:'Clear green or teal',h:'Vivid',sw:'#4E8A62'},
+   {v:'soft',t:'Soft blue-grey or grey-green',h:'Muted, smoky',sw:'#8A9A9A'},{v:'hazel',t:'Hazel or amber',h:'Golden flecks',sw:'#9B7A3E'},
+   {v:'brown',t:'Light to medium brown',sw:'#7A4E2A'},{v:'darkbrown',t:'Dark brown or near-black',sw:'#2E1C12'}]},
+ {id:'veins',title:'Look at the veins on your inner wrist in daylight.',sub:'This is the quickest read on your undertone.',type:'single',opts:[
+   {v:'blue',t:'Blue or purple',sw:'#6C6FB0'},{v:'green',t:'Green or olive',sw:'#6E8A4A'},{v:'mix',t:'A mix, hard to tell'}]},
+ {id:'metal',title:'Which jewelry looks better against your skin?',type:'single',opts:[
+   {v:'silver',t:'Silver or platinum',sw:'#C9CDD2'},{v:'gold',t:'Gold',sw:'#D4AF37'},{v:'both',t:'Both look fine'}]},
+ {id:'black',title:'How do you look in a plain black top?',type:'single',opts:[
+   {v:'sharp',t:'Sharp and striking',h:'Black is one of my best colors'},{v:'harsh',t:'Tired or washed out',h:'I look better in softer darks'},{v:'unsure',t:'Not sure'}]},
+ {id:'shape',title:'Which body shape is closest to yours?',sub:'Used only for fit tips.',type:'single',opts:[
+   {v:'hourglass',t:'Hourglass',h:'Shoulders and hips balanced, defined waist'},{v:'pear',t:'Pear',h:'Hips wider than shoulders'},
+   {v:'apple',t:'Apple',h:'Fuller through the middle'},{v:'rectangle',t:'Rectangle',h:'Straight up and down'},
+   {v:'inverted',t:'Inverted triangle',h:'Shoulders wider than hips'},{v:'unsure',t:'Not sure'}]},
+ {id:'fit',title:'Do you shop any special size ranges?',sub:'Added to your product searches. Pick all that apply.',type:'multi',max:3,opts:[
+   {v:'none',t:'Standard sizes',excl:true},{v:'petite',t:'Petite'},{v:'tall',t:'Tall'},{v:'plus',t:'Plus or extended sizes'}]},
+ {id:'budget',title:'What do you usually spend on a top?',sub:'Coats, shoes and knits scale up from this automatically.',type:'single',opts:[
+   {v:0,t:'Under $30'},{v:1,t:'$30–60'},{v:2,t:'$60–120'},{v:3,t:'$120 or more'}]},
+];
+const VQ=()=>Q.filter(q=>!q.when||q.when(S.answers));
+const optsFor=q=>q.opts.filter(o=>!o.only||o.only===S.answers.dressFor);
+
+/* ---------- color analysis ---------- */
+const HAIR={platinum:{h:0,t:-.5,c:0},golden:{h:1,t:2,c:0},ash:{h:1.5,t:-1.5,c:-1},medium:{h:2.5,t:.5,c:0},dark:{h:3.5,t:0,c:0},black:{h:4,t:-.5,c:1},red:{h:2,t:3,c:0},grey:{h:2,t:-1,c:-1}};
+const EYES={clearblue:{t:-1,c:2,d:0},cleargreen:{t:0,c:2,d:0},soft:{t:-.5,c:-2,d:0},hazel:{t:1,c:-1,d:0},brown:{t:.5,c:0,d:0},darkbrown:{t:0,c:1,d:1}};
+function analyze(a){
+  const hr=HAIR[a.hair], ey=EYES[a.eyes], s=+a.skin;
+  let t=hr.t+ey.t+({blue:-2,green:2,mix:0})[a.veins]+({silver:-2,gold:2,both:0})[a.metal];
+  let d=(s-2)*.9+(hr.h-2)*.9+ey.d+({sharp:1,harsh:-1,unsure:0})[a.black];
+  let c=hr.c+ey.c+({sharp:2,harsh:-1.5,unsure:0})[a.black]+(Math.abs(hr.h-s)-1.5)*.9;
+  const n={t:t/2.2,d:d/1.8,c:c/1.6};
+  const dom=Object.keys(n).sort((x,y)=>Math.abs(n[y])-Math.abs(n[x]))[0];
+  let season;
+  if(dom==='d') season = d<0 ? (t>=0?'Light Spring':'Light Summer') : (t>=0?'Deep Autumn':'Deep Winter');
+  else if(dom==='t') season = t>=0 ? ((c>0||(c===0&&d<0))?'Warm Spring':'Warm Autumn') : (c>0?'Cool Winter':'Cool Summer');
+  else season = c>=0 ? (t>=0?'Bright Spring':'Bright Winter') : (t>=0?'Soft Autumn':'Soft Summer');
+  return {t,d,c,season};
+}
+const sw=(name,hex)=>({name,hex});
+const PAL={
+ 'Light Spring':{d:'Light and warm. Your coloring has a golden glow, so clear, sunny pastels lift you while heavy darks overwhelm.',n:[sw('light navy','#3A4F7A'),sw('camel','#C19A6B'),sw('ivory','#F6EFD9')],p:[sw('peach','#F6B38E'),sw('aqua','#7FD1C3'),sw('periwinkle','#9AA8E8'),sw('warm pink','#F59AA0')],a:[sw('buttercup yellow','#F5D76E'),sw('light coral','#F08A7E')],metal:'gold',avoid:'black, burgundy, dusty grey'},
+ 'Warm Spring':{d:'Warm, clear and lively. Golden-based colors make your skin glow; dusty or icy shades fall flat.',n:[sw('warm navy','#2E3F69'),sw('camel','#BE8F5A'),sw('cream','#F3E7C9')],p:[sw('coral','#F2735B'),sw('turquoise','#2BB3A6'),sw('golden yellow','#F2C14E'),sw('kelly green','#3BA55C')],a:[sw('warm red','#E0473A'),sw('apricot','#F4A261')],metal:'gold',avoid:'black, icy pastels, burgundy'},
+ 'Bright Spring':{d:'Clear, warm and high-contrast. Saturated colors match your energy; muted earth tones dull you.',n:[sw('navy','#1F2E5C'),sw('warm grey','#9C948A'),sw('soft white','#F7F4EC')],p:[sw('hot coral','#FF5A5F'),sw('turquoise','#00B3A4'),sw('bright periwinkle','#6B7BFF'),sw('emerald','#00A36C')],a:[sw('poppy red','#E63946'),sw('sunflower yellow','#FFC93C')],metal:'gold',avoid:'dusty muted shades, mustard, beige'},
+ 'Light Summer':{d:'Light, soft and cool. Airy blue-based pastels flatter you; black and orange feel heavy.',n:[sw('slate navy','#4A5A78'),sw('light grey','#B9BCC2'),sw('soft white','#F3F1EE')],p:[sw('powder blue','#A9C6E8'),sw('lavender','#C3B1E1'),sw('rose pink','#E7A5B7'),sw('soft aqua','#9ED6D0')],a:[sw('periwinkle','#8E9BD6'),sw('watermelon','#E37A86')],metal:'silver',avoid:'black, orange, mustard'},
+ 'Cool Summer':{d:'Cool and gentle. Rosy, blue-based mid-tones suit you best; golden and orange shades clash.',n:[sw('navy','#2C3E63'),sw('blue grey','#8696A7'),sw('soft white','#EEEFF1')],p:[sw('raspberry','#C2456B'),sw('cornflower blue','#6F8FD8'),sw('spruce teal','#3C8D93'),sw('orchid','#B67BC9')],a:[sw('berry','#8E2F5B'),sw('soft fuchsia','#D26CA6')],metal:'silver',avoid:'orange, camel, mustard'},
+ 'Soft Summer':{d:'Muted and cool. Smoky, greyed colors blend with your coloring; bright or stark shades overpower you.',n:[sw('charcoal','#4A4E55'),sw('taupe','#9E928A'),sw('oyster','#E6E0D8')],p:[sw('dusty rose','#C58C95'),sw('sage','#9AAE9A'),sw('slate blue','#6E7F99'),sw('mauve','#A68095')],a:[sw('muted teal','#5F8E8B'),sw('soft plum','#7D5A72')],metal:'silver',avoid:'black, neon brights, orange'},
+ 'Soft Autumn':{d:'Muted and warm. Gentle earth tones and dusty greens harmonize with you; bright white and black look harsh.',n:[sw('espresso','#4A3A30'),sw('mushroom','#A8988A'),sw('oatmeal','#E8DDCB')],p:[sw('sage','#9AA77F'),sw('terracotta','#C47F6B'),sw('soft teal','#5E8C86'),sw('olive','#8A8D5A')],a:[sw('salmon','#E39B85'),sw('warm taupe','#A07F68')],metal:'gold',avoid:'black, bright white, icy colors'},
+ 'Warm Autumn':{d:'Rich, warm and earthy. Spice tones, olive and camel make you glow; cool pinks and icy shades wash you out.',n:[sw('chocolate brown','#4B2E20'),sw('camel','#B88A5A'),sw('cream','#EFE3C8')],p:[sw('rust','#B5532E'),sw('olive','#6B6B2E'),sw('mustard','#D2A238'),sw('teal','#1F6F6B')],a:[sw('pumpkin','#D9772E'),sw('forest green','#2F5D3A')],metal:'gold',avoid:'black, cool pink, icy pastels'},
+ 'Deep Autumn':{d:'Deep and warm. Rich, dark earth tones match your depth; pastels look washed out on you.',n:[sw('dark chocolate','#3B2418'),sw('cognac','#9A5A2E'),sw('cream','#EDE0C4')],p:[sw('burgundy','#7A1F2B'),sw('deep teal','#0F5257'),sw('olive','#5C5B26'),sw('burnt orange','#C0541C')],a:[sw('mustard','#C9971C'),sw('aubergine','#4E2A44')],metal:'gold',avoid:'pastels, icy grey, bright white'},
+ 'Deep Winter':{d:'Deep and cool. Strong darks and jewel tones suit you; muted beige and orange dull you.',n:[sw('black','#111111'),sw('charcoal','#3F4146'),sw('bright white','#FAFAFA')],p:[sw('true red','#C8102E'),sw('emerald','#00704A'),sw('royal blue','#1D3FA8'),sw('deep plum','#5B1F55')],a:[sw('fuchsia','#C2185B'),sw('icy blue','#CFE3F5')],metal:'silver',avoid:'camel, orange, muted beige'},
+ 'Cool Winter':{d:'Cool and crisp. Pure, blue-based colors and stark contrast flatter you; warm browns and mustard clash.',n:[sw('black','#111111'),sw('charcoal','#44474D'),sw('pure white','#FFFFFF')],p:[sw('royal blue','#2342B5'),sw('magenta','#C3157A'),sw('pine green','#0B6E4F'),sw('icy pink','#F3D3E3')],a:[sw('blue red','#C21837'),sw('violet','#5E3BAE')],metal:'silver',avoid:'warm browns, orange, mustard'},
+ 'Bright Winter':{d:'Vivid and high-contrast. Clear, saturated colors and black-and-white pairings suit you; dusty tones drain you.',n:[sw('black','#0F0F12'),sw('cool grey','#7B7F86'),sw('optic white','#FFFFFF')],p:[sw('cobalt blue','#0047AB'),sw('hot pink','#E7298A'),sw('emerald','#009B77'),sw('lemon yellow','#F4E04D')],a:[sw('true red','#D7192E'),sw('electric purple','#7B2FF7')],metal:'silver',avoid:'dusty muted tones, beige, orange'},
+};
+
+/* ---------- garment catalog ----------
+   w/m: display names. lk/lkm: descriptive search words for the current, premium-looking
+   version of the piece (cut, fabric, details). No brand names anywhere. */
+const C=[
+ {id:'woolcoat',cat:'outer',ic:'coat',w:'Wool-blend long coat',m:'Wool-blend overcoat',lk:'oversized double breasted wool blend long coat dropped shoulder',lkm:'wool blend overcoat single breasted',s:'W F',st:'classic minimal romantic',cl:'cold mildwet milddry',role:'mid',p:3},
+ {id:'trench',cat:'outer',ic:'coat',w:'Belted trench coat',m:'Trench coat',lk:'oversized belted trench coat storm flap',s:'F Sp',st:'classic minimal romantic',cl:'mildwet milddry',role:'mid',p:3},
+ {id:'rain',cat:'outer',ic:'coat',w:'Waterproof hooded rain jacket',m:'Waterproof hooded rain jacket',lk:'waterproof hooded rain jacket drawcord waist matte packable',s:'F W Sp',cl:'mildwet',role:'dark',p:5},
+ {id:'puffer',cat:'outer',ic:'coat',w:'Long insulated puffer coat',m:'Insulated puffer jacket',lk:'long quilted puffer coat hooded matte',lkm:'matte quilted puffer jacket hooded',s:'W',cl:'cold',role:'dark',p:5},
+ {id:'moto',cat:'outer',ic:'coat',w:'Faux-leather moto jacket',m:'Leather-look biker jacket',lk:'cropped faux leather moto jacket asymmetric zip',lkm:'faux leather biker jacket',s:'F Sp W',st:'edgy',role:'dark',p:2},
+ {id:'denimjkt',cat:'outer',ic:'coat',w:'Denim jacket',m:'Denim trucker jacket',lk:'oversized vintage wash denim jacket',s:'Sp Su F',st:'relaxed boho edgy',role:'denim2',p:2},
+ {id:'blazer',cat:'outer',ic:'coat',w:'Tailored blazer',m:'Unstructured blazer',lk:'relaxed oversized single breasted blazer',lkm:'unstructured soft shoulder blazer',s:'W F Sp',st:'classic minimal',lf:'office social',role:'mid',p:2},
+ {id:'shacket',cat:'outer',ic:'coat',w:'Wool-blend shirt jacket',m:'Wool-blend overshirt',lk:'oversized brushed wool blend shacket chest pockets',s:'F W',st:'relaxed boho edgy',role:'power',p:2},
+ {id:'suede',cat:'outer',ic:'coat',w:'Faux-suede jacket',m:'Suede-look trucker jacket',lk:'faux suede trucker jacket relaxed fit',s:'F Sp',st:'boho',role:'mid',p:2},
+ {id:'vest',cat:'outer',ic:'coat',w:'Quilted puffer vest',m:'Quilted puffer vest',lk:'quilted puffer vest high collar',s:'F W Sp',st:'relaxed',lf:'active errands',role:'dark',p:1},
+ {id:'linenblazer',cat:'outer',ic:'coat',w:'Linen blazer',m:'Linen overshirt',lk:'relaxed linen blazer',lkm:'linen overshirt relaxed',s:'Su',role:'light',p:3},
+ {id:'lightjkt',cat:'outer',ic:'coat',w:'Lightweight utility jacket',m:'Lightweight field jacket',lk:'lightweight cotton utility jacket drawstring waist',s:'Sp Su',st:'relaxed boho',role:'mid',p:1},
+ {id:'crew',cat:'knit',ic:'sweater',w:'Merino crewneck sweater',m:'Merino crewneck sweater',lk:'soft fine knit crewneck sweater relaxed fit ribbed trim',s:'F W Sp',role:'power',p:4},
+ {id:'turtle',cat:'knit',ic:'sweater',w:'Fine-knit turtleneck',m:'Merino turtleneck',lk:'ribbed fine knit turtleneck slim fit',s:'F W',st:'classic minimal edgy',role:'dark',p:3},
+ {id:'cardi',cat:'knit',ic:'sweater',w:'Longline cardigan',m:'Shawl-collar cardigan',lk:'longline chunky knit open front cardigan pockets',lkm:'chunky shawl collar cardigan',s:'F W Sp',st:'romantic relaxed boho classic',role:'mid',p:3},
+ {id:'qzip',cat:'knit',ic:'sweater',w:'Quarter-zip pullover',m:'Quarter-zip pullover',lk:'oversized brushed fleece half zip pullover stand collar side slits',lkm:'brushed fleece quarter zip pullover',s:'F W Sp',st:'relaxed',lf:'active home errands',role:'power',p:2},
+ {id:'cable',cat:'knit',ic:'sweater',w:'Chunky cable-knit sweater',m:'Chunky cable-knit sweater',lk:'oversized chunky cable knit sweater dropped shoulder',s:'W F',st:'boho relaxed romantic',cl:'cold mildwet milddry',role:'light',p:2},
+ {id:'vneck',cat:'knit',ic:'sweater',w:'Fine-gauge V-neck sweater',m:'Fine-gauge V-neck sweater',lk:'fine gauge cashmere blend v neck sweater',s:'Sp F W',st:'classic',lf:'office',role:'power',p:2},
+ {id:'sweatshirt',cat:'knit',ic:'sweater',w:'Heavyweight crewneck sweatshirt',m:'Heavyweight crewneck sweatshirt',lk:'oversized heavyweight crewneck sweatshirt vintage washed',s:'F W Sp',st:'relaxed edgy',lf:'home active',role:'mid',p:1},
+ {id:'hoodie',cat:'knit',ic:'sweater',w:'Fleece hoodie',m:'Fleece hoodie',lk:'oversized heavyweight fleece hoodie',s:'F W Sp',st:'relaxed edgy',lf:'home active',role:'mid',p:0},
+ {id:'cotsweater',cat:'knit',ic:'sweater',w:'Lightweight cotton sweater',m:'Lightweight cotton sweater',lk:'lightweight cotton crewneck sweater boxy fit',s:'Sp',role:'power',p:2},
+ {id:'lstee',cat:'top',ic:'top',w:'Long-sleeve fitted tee',m:'Long-sleeve crewneck tee',lk:'buttery soft ribbed long sleeve crewneck tee slim fit',lkm:'heavyweight long sleeve crewneck tee',s:'F W Sp',role:'light',p:4},
+ {id:'tee',cat:'top',ic:'top',w:'Crewneck cotton tee',m:'Heavyweight cotton tee',lk:'boxy heavyweight cotton crewneck tee',s:'Sp Su F',role:'light',p:4},
+ {id:'buttondown',cat:'top',ic:'top',w:'Classic button-down shirt',m:'Oxford button-down shirt',lk:'oversized crisp poplin button down shirt',lkm:'oxford button down shirt slim fit',s:'W F Sp Su',st:'classic minimal',lf:'office',role:'light',p:3},
+ {id:'blouse',cat:'top',ic:'top',w:'Soft tie-neck blouse',m:null,lk:'flowy tie neck blouse long sleeve',s:'W F Sp Su',st:'romantic classic',lf:'office social',role:'power',p:3},
+ {id:'cami',cat:'top',ic:'top',w:'Satin camisole',m:null,lk:'satin cowl neck cami adjustable straps',s:'F W Sp Su',st:'romantic minimal edgy',lf:'social',role:'power',p:2},
+ {id:'flannel',cat:'top',ic:'top',w:'Brushed flannel shirt',m:'Brushed flannel shirt',lk:'oversized brushed flannel button up shirt',s:'F W',st:'relaxed boho edgy',role:'power',p:2},
+ {id:'graphictee',cat:'top',ic:'top',w:'Vintage-wash graphic tee',m:'Vintage-wash graphic tee',lk:'vintage washed oversized graphic tee',s:'W F Sp Su',st:'relaxed edgy',role:'light',p:0},
+ {id:'tank',cat:'top',ic:'top',w:'Ribbed tank top',m:'Ribbed tank top',lk:'ribbed scoop neck tank fitted',s:'Su Sp',role:'light',p:2},
+ {id:'polo',cat:'top',ic:'top',w:'Knit polo top',m:'Knit polo shirt',lk:'short sleeve knit polo sweater',s:'Sp Su',st:'classic minimal',role:'power',p:2},
+ {id:'linenshirt',cat:'top',ic:'top',w:'Linen button-up shirt',m:'Linen button-up shirt',lk:'relaxed linen button up shirt',s:'Su Sp',role:'light',p:3},
+ {id:'henley',cat:'top',ic:'top',w:'Waffle-knit henley',m:'Waffle-knit henley',lk:'waffle knit henley relaxed fit',s:'F W',st:'relaxed boho',role:'power',p:2},
+ {id:'mock',cat:'top',ic:'top',w:'Mock-neck long-sleeve top',m:'Mock-neck long-sleeve tee',lk:'fitted mock neck long sleeve top double layered',s:'F W',st:'minimal edgy classic',role:'dark',p:2},
+ {id:'peasant',cat:'top',ic:'top',w:'Peasant blouse',m:null,lk:'embroidered peasant blouse balloon sleeve',s:'Sp Su F',st:'boho romantic',role:'power',p:2},
+ {id:'jeans',cat:'bottom',ic:'pants',w:'Dark-wash straight-leg jeans',m:'Dark-wash slim-straight jeans',lk:'high rise straight leg jeans 90s fit',lkm:'slim straight jeans rigid denim',s:'W F Sp Su',role:'denim',p:6},
+ {id:'trousers',cat:'bottom',ic:'pants',w:'Wide-leg tailored trousers',m:'Wool-blend dress trousers',lk:'high waisted wide leg pleated trousers',lkm:'pleated wool blend trousers tapered',s:'W F Sp',st:'classic minimal',lf:'office social',role:'dark',p:3},
+ {id:'chinos',cat:'bottom',ic:'pants',w:'Straight-leg chinos',m:'Stretch chinos',lk:'relaxed straight leg chinos',s:'Sp Su F',st:'classic relaxed',role:'mid',p:3},
+ {id:'ponte',cat:'bottom',ic:'pants',w:'Ponte pull-on pants',m:'Tech-stretch commuter pants',lk:'high rise ponte pull on pants straight leg',lkm:'tech stretch commuter pants slim',s:'F W Sp',lf:'home office errands',role:'dark',p:2},
+ {id:'midiskirt',cat:'bottom',ic:'skirt',w:'Pleated midi skirt',m:null,lk:'pleated midi skirt elastic waist',s:'F W Sp',st:'romantic classic',lf:'office social',role:'power',p:2},
+ {id:'slipskirt',cat:'bottom',ic:'skirt',w:'Satin slip midi skirt',m:null,lk:'bias cut satin midi slip skirt',s:'Sp Su F',st:'minimal romantic edgy',lf:'social',role:'mid',p:2},
+ {id:'maxiskirt',cat:'bottom',ic:'skirt',w:'Tiered maxi skirt',m:null,lk:'tiered flowy maxi skirt',s:'Sp Su',st:'boho',role:'power',p:2},
+ {id:'darkjeans',cat:'bottom',ic:'pants',w:'Straight-leg jeans',m:'Slim jeans',lk:'high rise straight leg jeans washed',lkm:'slim straight jeans washed',s:'W F Sp',st:'edgy minimal',role:'dark',p:2},
+ {id:'leggings',cat:'bottom',ic:'pants',w:'High-rise leggings',m:null,lk:'buttery soft high waisted leggings 25 inch',s:'F W Sp',lf:'active home',role:'dark',p:2},
+ {id:'joggers',cat:'bottom',ic:'pants',w:'Fleece joggers',m:'Tapered joggers',lk:'high rise cotton fleece joggers tapered',lkm:'tapered fleece joggers',s:'F W Sp',lf:'active home',role:'mid',p:1},
+ {id:'shorts',cat:'bottom',ic:'pants',w:'Tailored shorts',m:'Chino shorts',lk:'tailored pleated shorts',s:'Su',role:'mid',p:3},
+ {id:'linenpants',cat:'bottom',ic:'pants',w:'Linen drawstring pants',m:'Linen drawstring pants',lk:'wide leg linen drawstring pants',s:'Su Sp',role:'light',p:3},
+ {id:'cords',cat:'bottom',ic:'pants',w:'Wide-wale corduroy pants',m:'Corduroy pants',lk:'wide leg wide wale corduroy pants',s:'F W',st:'boho relaxed',role:'mid',p:2},
+ {id:'sweaterdress',cat:'dress',ic:'dress',w:'Knit sweater dress',lk:'ribbed knit midi sweater dress',s:'F W',role:'power',p:3},
+ {id:'wrapdress',cat:'dress',ic:'dress',w:'Wrap midi dress',lk:'long sleeve wrap midi dress flowy',s:'W F Sp Su',st:'romantic classic',lf:'office social',role:'power',p:3},
+ {id:'slipdress',cat:'dress',ic:'dress',w:'Satin slip dress',lk:'bias cut satin midi slip dress',s:'F Sp Su',st:'minimal edgy romantic',lf:'social',role:'accent',p:2},
+ {id:'shirtdress',cat:'dress',ic:'dress',w:'Shirt dress',lk:'belted midi shirt dress',s:'Sp Su',st:'classic relaxed',role:'mid',p:2},
+ {id:'maxidress',cat:'dress',ic:'dress',w:'Flowy maxi dress',lk:'smocked tiered maxi dress',s:'Su Sp',st:'boho romantic',role:'power',p:2},
+ {id:'sheath',cat:'dress',ic:'dress',w:'Long-sleeve sheath dress',lk:'long sleeve ponte sheath dress knee length',s:'W F',st:'classic minimal edgy',lf:'office social',role:'dark',p:2},
+ {id:'ankleboot',cat:'shoes',ic:'boot',w:'Leather ankle boots',m:'Leather Chelsea boots',lk:'leather ankle boots block heel almond toe',lkm:'leather chelsea boots',s:'F W Sp',role:'dark',p:4},
+ {id:'wpboot',cat:'shoes',ic:'boot',w:'Waterproof Chelsea boots',m:'Waterproof leather boots',lk:'waterproof lug sole chelsea boots',lkm:'waterproof leather boots lug sole',s:'F W Sp',cl:'mildwet cold',role:'dark',p:4},
+ {id:'snowboot',cat:'shoes',ic:'boot',w:'Insulated snow boots',m:'Insulated snow boots',lk:'insulated waterproof snow boots faux fur lined',s:'W',cl:'cold',role:'dark',p:5},
+ {id:'sneaker',cat:'shoes',ic:'sneaker',w:'Leather sneakers',m:'Leather sneakers',lk:'minimalist leather court sneakers',s:'W F Sp Su',role:'light',p:5},
+ {id:'loafer',cat:'shoes',ic:'sneaker',w:'Leather loafers',m:'Penny loafers',lk:'chunky lug sole leather loafers',lkm:'classic leather penny loafers',s:'F W Sp Su',st:'classic minimal',lf:'office',role:'mid',p:3},
+ {id:'kneeboot',cat:'shoes',ic:'boot',w:'Knee-high boots',m:null,lk:'knee high block heel boots slim shaft',s:'F W',st:'romantic boho classic',role:'mid',p:2},
+ {id:'combat',cat:'shoes',ic:'boot',w:'Lug-sole combat boots',m:'Lug-sole combat boots',lk:'lug sole lace up combat boots',s:'F W Sp',st:'edgy',role:'dark',p:2},
+ {id:'clogs',cat:'shoes',ic:'sneaker',w:'Suede clogs',m:'Suede clogs',lk:'suede clogs cork footbed',s:'F W Sp',st:'relaxed boho',role:'mid',p:0},
+ {id:'sandal',cat:'shoes',ic:'sneaker',w:'Leather slide sandals',m:'Leather slide sandals',lk:'leather two strap slide sandals contoured footbed',s:'Su',role:'mid',p:4},
+ {id:'flats',cat:'shoes',ic:'sneaker',w:'Ballet flats',m:null,lk:'square toe ballet flats',s:'Sp Su F',st:'romantic classic',role:'mid',p:2},
+ {id:'runner',cat:'shoes',ic:'sneaker',w:'Cushioned walking sneakers',m:'Cushioned walking sneakers',lk:'lightweight cushioned walking sneakers',s:'W F Sp Su',lf:'active',role:'mid',p:1},
+ {id:'scarf',cat:'acc',ic:'scarf',w:'Oversized wool scarf',m:'Wool scarf',lk:'oversized wool blend blanket scarf',lkm:'wool scarf',s:'F W',cl:'cold mildwet milddry',role:'accent',p:4},
+ {id:'crossbody',cat:'acc',ic:'bag',w:'Leather crossbody bag',m:'Leather messenger bag',lk:'minimalist leather half moon crossbody bag',lkm:'leather messenger bag',s:'all',role:'mid',p:3},
+ {id:'tote',cat:'acc',ic:'bag',w:'Structured tote bag',m:'Leather work bag',lk:'structured leather tote bag laptop sleeve',lkm:'leather work bag laptop',s:'all',lf:'office',role:'dark',p:2},
+ {id:'jewelry',cat:'acc',ic:'ring',w:'Everyday {metal} jewelry set',m:'Minimal {metal}-tone watch',lk:'dainty {metal} jewelry set hoops layered necklace',lkm:'minimalist {metal} watch',s:'all',role:'metal',p:3},
+ {id:'beanie',cat:'acc',ic:'ring',w:'Ribbed knit beanie',m:'Ribbed knit beanie',lk:'ribbed cuffed knit beanie',s:'W',cl:'cold mildwet',role:'power',p:2},
+ {id:'umbrella',cat:'acc',ic:'ring',w:'Compact windproof umbrella',m:'Compact windproof umbrella',lk:'compact windproof travel umbrella',s:'F W Sp',cl:'mildwet',role:'accent',p:1},
+ {id:'sunnies',cat:'acc',ic:'ring',w:'Classic sunglasses',m:'Classic sunglasses',lk:'acetate polarized sunglasses',s:'Su Sp',role:'dark',p:3},
+ {id:'silkscarf',cat:'acc',ic:'scarf',w:'Printed silk scarf',m:null,lk:'printed silk square scarf',s:'Sp Su',st:'romantic classic boho',role:'accent',p:2},
+ {id:'belt',cat:'acc',ic:'ring',w:'Leather belt',m:'Leather belt',lk:'leather belt {metal} buckle',s:'all',role:'mid',p:1},
+ {id:'hat',cat:'acc',ic:'ring',w:'Wool felt hat',m:'Wool felt hat',lk:'wool felt wide brim hat',s:'F W',st:'boho',role:'mid',p:1},
+];
+const CATS=[['outer','Outerwear & layers'],['knit','Knitwear'],['top','Tops'],['bottom','Bottoms'],['dress','Dresses'],['shoes','Shoes'],['acc','Accessories']];
+const CATNAME=Object.fromEntries(CATS);
+const SLOTS={W:{outer:2,knit:3,top:3,bottom:3,dress:1,shoes:3,acc:3},F:{outer:2,knit:2,top:4,bottom:3,dress:1,shoes:3,acc:2},Sp:{outer:2,knit:1,top:4,bottom:3,dress:2,shoes:3,acc:2},Su:{outer:1,knit:0,top:5,bottom:4,dress:2,shoes:3,acc:2}};
+const TIERS=[[15,30],[30,60],[60,120],[120,250]];
+const MULT={outer:2.5,knit:1.3,top:1,bottom:1.4,dress:1.6,shoes:2,acc:.8};
+const CLIMATE={mildwet:'mild, rainy',cold:'cold, snowy',milddry:'mild, dry',hot:'warm'};
+const LIFE={office:'office days',home:'working from home',errands:'errands and school runs',active:'time outdoors',social:'evenings out'};
+const OCC={office:'Office day',home:'Work from home',errands:'Errands',active:'Outdoors',social:'Dinner out'};
+
+/* veto options: label -> words added to the search */
+const FITS={
+ outer:[['Shorter, cropped','cropped'],['Hip length','hip length'],['Knee length or longer','long knee length'],['With a hood','hooded'],['More fitted','fitted'],['Roomier','oversized relaxed']],
+ knit:[['Cropped','cropped'],['Longer, covers hips','longline tunic'],['Roomier','oversized'],['More fitted','fitted slim'],['V-neck','v neck'],['Higher neck','mock neck']],
+ top:[['Cropped','cropped'],['Longer, covers hips','tunic length'],['Roomier','oversized relaxed'],['More fitted','fitted slim'],['V-neck','v neck'],['Longer sleeves','long sleeve']],
+ bottom:[['Wider leg','wide leg'],['Slimmer leg','slim straight'],['Higher rise','high rise'],['Mid rise','mid rise'],['Cropped or ankle','ankle length'],['Elastic waist','elastic waist pull on']],
+ dress:[['Shorter','mini'],['Midi','midi'],['Maxi','maxi'],['With sleeves','long sleeve'],['Sleeveless','sleeveless'],['Looser','relaxed']],
+ shoes:[['Flat','flat'],['Low heel','low heel'],['Wide width','wide width'],['Waterproof','waterproof'],['Slip-on','slip on'],['More cushioned','cushioned comfort']],
+ acc:[['Smaller','small'],['Bigger','oversized'],['Simpler','minimalist']]
+};
+const FABRICS=[['Not itchy, no wool','soft cotton'],['Machine washable','machine washable'],['Stretchier','stretch'],['Lighter weight','lightweight'],['Warmer','warm thick lined'],['Natural fibers','100% cotton natural'],['Vegan, no leather','vegan']];
+
+const ICONS={
+ coat:'M17 6 L24 11 L31 6 L40 12 L43 40 L34 40 L33 44 L15 44 L14 40 L5 40 L8 12 Z',
+ sweater:'M17 8 Q24 13 31 8 L42 14 L39 25 L34 23 L34 42 L14 42 L14 23 L9 25 L6 14 Z',
+ top:'M18 8 Q24 12 30 8 L40 13 L37 20 L33 18 L33 42 L15 42 L15 18 L11 20 L8 13 Z',
+ pants:'M14 6 L34 6 L36 44 L27 44 L24 18 L21 44 L12 44 Z',
+ skirt:'M16 8 L32 8 L39 42 L9 42 Z',
+ dress:'M19 5 L29 5 L30 14 Q28 18 31 22 L39 43 L9 43 L17 22 Q20 18 18 14 Z',
+ boot:'M14 6 L26 6 L26 30 L38 34 Q42 36 42 41 L42 43 L14 43 Z',
+ sneaker:'M5 27 L17 25 Q24 30 30 27 L40 30 Q44 32 44 37 L44 40 L5 40 Z',
+ bag:'M10 18 L38 18 L36 42 L12 42 Z',
+ scarf:'M14 6 L30 6 L30 30 L36 44 L28 44 L24 33 L22 44 L14 44 Z',
+ ring:'M24 8 A16 16 0 1 0 24.01 8 Z M24 15 A9 9 0 1 1 23.99 15 Z'
+};
+/* seams, plackets, soles: drawn as fine lines over each silhouette */
+const DETAIL={
+ coat:'M24 11 L19 21 L24 27 M24 11 L29 21 L24 27 M24 27 L24 44 M14 40 L15 24 M34 40 L33 24',
+ sweater:'M14 38 L34 38 M18 10 Q24 15 30 10 M10 22 L7.5 20.5 M38 22 L40.5 20.5',
+ top:'M18 8 L24 14 L30 8 M24 14 L24 42',
+ pants:'M14 10 L34 10 M24 10 L24 18 M18 10 L18 14',
+ skirt:'M16.6 11 L31.4 11 M20 11 L17 42 M24 11 L24 42 M28 11 L31 42',
+ dress:'M17 22 Q24 24.5 31 22 M19.5 5 Q24 9 28.5 5',
+ boot:'M14 39 L42 39 M20 6 L20 14',
+ sneaker:'M5 36 L44 36 M18 27 L22 30 M22 26 L26 29 M26 26.5 L29 28.5',
+ bag:'M10 18 L24 28 L38 18 M17 18 Q17 9 24 9 Q31 9 31 18',
+ scarf:'M14 14 L30 14 M16 44 L16 47 M19 44 L19 47 M22 44 L22 47 M28 44 L28 47 M31 44 L31 47 M34 44 L34 47',
+ ring:''
+};
+function icon(k,hex){
+  k=ICONS[k]?k:'top';
+  return `<svg viewBox="0 0 48 48" aria-hidden="true"><path d="${ICONS[k]}" fill="${hex}" fill-rule="evenodd" stroke="currentColor" stroke-opacity=".55" stroke-width="1.2" stroke-linejoin="round"/>${DETAIL[k]?`<path d="${DETAIL[k]}" fill="none" stroke="currentColor" stroke-opacity="${k==='bag'?.6:.32}" stroke-width="${k==='bag'?1.6:1}" stroke-linecap="round" stroke-linejoin="round"/>`:''}</svg>`;
+}
+
+/* ---------- shareable collage (canvas) ---------- */
+let DL; function getDownloads(){ if(DL!==undefined) return DL; DL=(window.claude&&window.claude.use)?window.claude.use('downloads').catch(()=>null):Promise.resolve(null); return DL; }
+async function drawCollage(cv,R,a,combos){
+  try{ await Promise.race([Promise.all(['64px "Bodoni Moda"','28px Figtree','20px "IBM Plex Mono"'].map(f=>document.fonts.load(f))),new Promise(r=>setTimeout(r,1500))]); }catch(e){}
+  const W=1080,H=1350,x=cv.getContext('2d'); cv.width=W; cv.height=H;
+  const ink='#1B1F27', mute='#5E6472', paper='#F4F2EE';
+  x.fillStyle=paper; x.fillRect(0,0,W,H);
+  x.textAlign='center'; x.fillStyle=mute; x.font='500 20px "IBM Plex Mono", monospace';
+  x.fillText('CAPSULE  KIT',W/2,74);
+  x.fillStyle=ink; x.font='400 62px "Bodoni Moda", Didot, Georgia, serif';
+  x.fillText(`My ${seasonLabel(a.season)} capsule`,W/2,150,W-120);
+  x.fillStyle=mute; x.font='400 28px Figtree, system-ui, sans-serif';
+  x.fillText(`${R.col.season} · ${R.items.length} pieces · ${combos}+ outfits`,W/2,198);
+  // palette strip
+  const pal=R.allColors, sz=64, gap=14, sx=(W-(pal.length*sz+(pal.length-1)*gap))/2;
+  pal.forEach((c,i)=>{ const px=sx+i*(sz+gap); x.fillStyle=c.hex; roundRect(x,px,236,sz,sz,10); x.fill(); x.strokeStyle='rgba(27,31,39,.15)'; x.lineWidth=1; x.stroke(); });
+  // flat lay
+  const items=R.items, n=items.length, cols=n<=8?4:n<=15?5:6, rows=Math.ceil(n/cols);
+  const top=345, bottom=1250, cw=(W-80)/cols, ch=(bottom-top)/rows;
+  const SCALE={outer:1.12,knit:1,top:.95,bottom:1,dress:1.05,shoes:.78,acc:.68};
+  items.forEach((it,i)=>{
+    const r=Math.floor(i/cols), c=i%cols, inRow=Math.min(cols,n-r*cols);
+    const cx=(W-inRow*cw)/2+c*cw+cw/2, cy=top+r*ch+ch*0.44;
+    const s=Math.min(cw,ch*0.82)*0.9/48*(SCALE[it.cat]||1), rot=(((i*37)%11)-5)*Math.PI/180;
+    x.save(); x.translate(cx,cy); x.rotate(rot); x.scale(s,s); x.translate(-24,-24);
+    const k=ICONS[it.ic]?it.ic:'top', body=new Path2D(ICONS[k]);
+    x.shadowColor='rgba(20,24,32,.20)'; x.shadowBlur=16/s*1.2; x.shadowOffsetY=6/s;
+    x.fillStyle=it.color.hex; x.fill(body,'evenodd');
+    x.shadowColor='transparent';
+    x.lineJoin='round'; x.lineCap='round';
+    x.strokeStyle='rgba(27,31,39,.45)'; x.lineWidth=1.1; x.stroke(body);
+    if(DETAIL[k]){ x.strokeStyle=k==='bag'?'rgba(27,31,39,.6)':'rgba(27,31,39,.3)'; x.lineWidth=k==='bag'?1.6:.9; x.stroke(new Path2D(DETAIL[k])); }
+    x.restore();
+    x.fillStyle=mute; x.font='400 19px Figtree, system-ui, sans-serif'; x.textAlign='center';
+    let label=it.name.split(/\s+/).slice(-2).join(' '); label=label[0].toUpperCase()+label.slice(1); while(x.measureText(label).width>cw-16&&label.length>4) label=label.slice(0,-2);
+    if(!it.name.endsWith(label)&&label.length) label=label.replace(/[\s-]+$/,'')+'…';
+    x.fillText(label,cx,top+r*ch+ch*0.93);
+  });
+  x.fillStyle=mute; x.font='500 17px "IBM Plex Mono", monospace'; x.textAlign='center';
+  x.fillText('MADE WITH CAPSULE KIT',W/2,1310);
+}
+function roundRect(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
+async function saveCollage(cv){
+  const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+  if(!blob){toast('Could not create the image.');return}
+  const dl=await getDownloads();
+  if(dl){ try{ await dl.save({filename:'my-capsule-kit.png',data:blob}); toast('Image saved'); }catch(e){ if(e&&e.code!=='declined') toast('Saving is not available here. Try a screenshot instead.'); } return; }
+  const url=URL.createObjectURL(blob), link=document.createElement('a'); link.href=url; link.download='my-capsule-kit.png';
+  document.body.appendChild(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+
+/* ---------- build the capsule ---------- */
+function has(list,v){return (list||'').split(' ').includes(v)}
+function build(a,over){
+  over=over||{};
+  const col=analyze(a), pal=PAL[col.season], g=a.dressFor, se=a.season;
+  const styles=a.style||[], life=a.life||[];
+  const staples=(a.staples||[]).filter(x=>x!=='none');
+  const slots={...SLOTS[se]};
+  if(g!=='women'){slots.top+=slots.dress;slots.dress=0}
+  if(life.includes('office')&&se!=='Su') slots.outer+=1;
+  const nameOf=c=> g==='women'? c.w : g==='men'? c.m : (c.m||null);
+  const seasonOk=c=> c.s==='all'||has(c.s,se);
+  const climOk=c=> !c.cl||has(c.cl,a.climate);
+  function score(c){
+    if(!nameOf(c)||!seasonOk(c)||!climOk(c)) return -1e9;
+    let s=c.p; if(c.cl) s+=3;
+    if(c.st){const m=styles.filter(x=>has(c.st,x)).length; s+= m?3*m:-2} else s+=1;
+    if(c.lf){const m=life.filter(x=>has(c.lf,x)).length; s+= m?2*m:-1}
+    return s;
+  }
+  // 1. pick pieces per slot, then add staples the shopper wears on repeat
+  const picks={};
+  for(const [cat] of CATS){
+    const n=slots[cat]||0;
+    picks[cat]=C.filter(c=>c.cat===cat).map((c,i)=>({c,s:score(c),i})).filter(x=>x.s>-1e8).sort((x,y)=>y.s-x.s||x.i-y.i).slice(0,n).map(x=>({c:x.c}));
+  }
+  for(const sid of staples){
+    const c=C.find(x=>x.id===sid); if(!c||!nameOf(c)) continue;
+    const hit=picks[c.cat].find(p=>p.c.id===sid);
+    if(hit) hit.staple=true; else picks[c.cat].unshift({c,staple:true});
+  }
+  const inCapsule=new Set(Object.values(picks).flat().map(p=>p.c.id));
+  // 2. color, price and links, applying the shopper's edits
+  const items=[], removed=[]; let pi=0, ai=0;
+  const metal={name:pal.metal,hex:pal.metal==='gold'?'#D4AF37':'#C3C7CC'};
+  const gw={women:"women's",men:"men's",neutral:'unisex'}[g];
+  const fit=(a.fit||[]).filter(f=>f!=='none').map(f=>f==='plus'?(g==='men'?'big and tall':'plus size'):f);
+  const allColors=[...pal.n,...pal.p,...pal.a];
+  for(const [cat] of CATS){
+    const used={};
+    for(const p of picks[cat]){
+      const key=p.c.id, ov=over[key]||{};
+      const c= ov.swap ? (C.find(x=>x.id===ov.swap)||p.c) : p.c;
+      let role=c.role;
+      if(used[role]&&cat!=='acc') role={light:'power',dark:'mid',mid:'dark',power:'power',accent:'power'}[role]||role;
+      used[role]=1;
+      let color;
+      if(role==='dark') color=pal.n[0]; else if(role==='mid') color=pal.n[1]; else if(role==='light') color=pal.n[2];
+      else if(role==='power') color=pal.p[pi++%pal.p.length]; else if(role==='accent') color=pal.a[ai++%pal.a.length];
+      else if(role==='denim') color={name:'dark wash',hex:'#2F3E5C'}; else if(role==='denim2') color={name:'medium wash',hex:'#5A7BA6'};
+      else color=metal;
+      if(ov.color) color=allColors.find(x=>x.name===ov.color)||color;
+      let name=(ov.custom?ov.custom.name:nameOf(c)).replace('{metal}',pal.metal);
+      if(ov.removed){removed.push({key,name});continue}
+      const ic= (ov.custom&&ov.custom.icon) || c.ic;
+      let look=(ov.custom?ov.custom.look:((g!=='women'&&c.lkm)||c.lk||name)).replace('{metal}',pal.metal);
+      const mods=ov.mods||[];
+      const isClothing=!['shoes','acc'].includes(cat);
+      const colorWord = role==='metal'&&!ov.color ? '' : color.name;
+      const base=[gw,isClothing?fit.join(' '):'',colorWord];
+      const q=[...base,look,...mods].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+      const qBasic=[...base,name.toLowerCase(),...mods].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+      const tier=Math.max(0,Math.min(3,+a.budget+(ov.tier||0)));
+      const lo=Math.round(TIERS[tier][0]*MULT[cat]/5)*5, hi=Math.round(TIERS[tier][1]*MULT[cat]/5)*5;
+      let why;
+      if(ov.custom&&ov.custom.why) why=ov.custom.why;
+      else if(p.staple&&a.refresh==='keep') why='A piece you already wear on repeat. It shows up in your outfits below.';
+      else if(p.staple) why=`A fresh take on a piece you already love, in ${color.name}.`;
+      else if(role==='power') why=`In ${color.name}, one of your power colors. Wear it near your face.`;
+      else if(role==='accent') why=`An accent in ${color.name} to lift your neutrals.`;
+      else if(role==='metal') why=`${pal.metal[0].toUpperCase()+pal.metal.slice(1)} suits your ${col.t>=0?'warm':'cool'} undertone better than ${pal.metal==='gold'?'silver':'gold'}.`;
+      else if(/wash/.test(color.name)) why='The anchor of the capsule. Pairs with every top here.';
+      else why=`A ${color.name} base that works with every other piece.`;
+      if(!ov.custom&&!p.staple){ if(c.cl) why+=` Picked for ${CLIMATE[a.climate]} weather.`;
+        else if(c.lf){const m=life.filter(x=>has(c.lf,x)); if(m.length) why+=` Made for ${LIFE[m[0]]}.`} }
+      const alts=C.filter(x=>x.cat===cat&&x.id!==c.id&&nameOf(x)&&seasonOk(x)&&climOk(x)&&!inCapsule.has(x.id)).map(x=>({id:x.id,name:nameOf(x).replace('{metal}',pal.metal)}));
+      items.push({key,id:c.id,cat,ic,name,color,why,q,lo,hi,staple:!!p.staple,keep:!!p.staple&&a.refresh==='keep',edited:!!Object.keys(ov).length,mods,alts,
+        amazon:amz(q,lo,hi), basic:amz(qBasic,lo,hi)});
+    }
+  }
+  return {col,pal,items,removed,allColors,outfits:outfits(items,life,se)};
+}
+function outfits(items,life,se){
+  const by=k=>items.filter(i=>i.cat===k).sort((x,y)=>y.staple-x.staple);
+  const T=by('top'),K=by('knit'),B=by('bottom'),D=by('dress'),O=by('outer'),S=by('shoes'),A=by('acc').filter(i=>i.ic!=='ring'||i.id==='jewelry');
+  const pats=['tb','kbo','tkb','dso','tbo','kb','tba','db'];
+  const out=[],seen=new Set();
+  for(let i=0;out.length<7&&i<40;i++){
+    let p=pats[i%pats.length];
+    if(p.includes('k')&&!K.length) p=p.replace('k','t');
+    if(p.includes('t')&&!T.length) p=p.replace('t','k');
+    if(p.includes('d')&&!D.length) p='tbo';
+    if(!B.length) p=p.replace('b','');
+    const pick=(arr,o)=>arr.length?arr[(i+o)%arr.length]:null;
+    const pieces=[];
+    if(p.includes('o')&&se!=='Su') pieces.push(pick(O,1));
+    if(p.includes('k')) pieces.push(pick(K,0));
+    if(p.includes('t')) pieces.push(pick(T,Math.floor(i/2)));
+    if(p.includes('d')) pieces.push(pick(D,0));
+    if(p.includes('b')) pieces.push(pick(B,i*2+1));
+    pieces.push(pick(S,i));
+    if(p.includes('a')||i%3===0) pieces.push(pick(A,i));
+    const list=[...new Set(pieces.filter(Boolean))]; const key=list.map(x=>x.key).join('+');
+    if(!list.length||seen.has(key)) continue; seen.add(key); out.push(list);
+  }
+  // make sure every staple shows up at least once, swapping it in for a piece of the same kind
+  const group=c=>c==='knit'||c==='top'?'upper':c;
+  for(const st of items.filter(i=>i.staple)){
+    if(out.some(l=>l.includes(st))) continue;
+    for(let j=out.length-1;j>=0;j--){
+      const l=out[j], k=l.findIndex(x=>!x.staple&&group(x.cat)===group(st.cat));
+      if(k>=0&&!l.includes(st)){ if(st.cat==='knit'&&l.some(x=>x.cat==='knit'&&x!==l[k])) continue; l[k]=st; break; }
+    }
+  }
+  const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const occs=life.length?life:['errands'];
+  return out.map((list,i)=>({day:days[i],occ:i>=5?(occs.includes('active')&&i===5?OCC.active:occs.includes('social')&&i===6?OCC.social:'Weekend'):OCC[occs[i%occs.length]],list}));
+}
+
+/* ---------- notes ---------- */
+const SHAPE={
+ hourglass:['Define the waist with wrap shapes, belted coats and tucked tops.','Pick fabrics that drape rather than stiff, boxy cuts.','Mid- to high-rise bottoms keep your proportions balanced.'],
+ pear:['Draw the eye up: put power colors and interesting necklines on top.','Straight or wide-leg bottoms in your dark neutral skim the hips.','Jackets with some shoulder structure balance your frame.'],
+ apple:['Open necklines like V and scoop lengthen the torso.','Longline layers, open cardigans and unbuttoned coats create a vertical line.','Straight-leg bottoms with a little flare balance the middle.'],
+ rectangle:['Create shape with belts, cropped jackets and defined hems.','Mix volumes: a chunky knit with a slim trouser, or the reverse.','Wrap and A-line shapes add curve where you want it.'],
+ inverted:['Keep shoulders simple: raglan sleeves, V-necks, no pads.','Add volume below with wide-leg trousers or A-line shapes.','Put brighter colors and pattern on your lower half.'],
+ unsure:['Fit the shoulders first. They are the hardest thing to alter.','Hem trousers to the shoe you wear most.','When in doubt, choose mid-rise and straight leg.']
+};
+const STYLE={classic:'Classic: invest most in the coat, trousers and shoes. They carry the polish.',relaxed:'Relaxed: choose soft fabrics but keep one structured layer so outfits look intentional.',minimal:'Minimal: stick to your three neutrals plus one power color per outfit.',romantic:'Romantic: add softness through fabric (satin, fine knits) rather than ruffles everywhere.',edgy:'Edgy: anchor with your darkest neutral and let one sharp piece, like a moto jacket or boots, lead.',boho:'Boho: layer textures like suede, cable knit and cord in your earth-leaning neutrals.'};
+
+/* ---------- state + render ---------- */
+const saved=load();
+const S={view:saved.view||'intro',step:saved.step||0,answers:saved.answers||{},owned:new Set(saved.owned||[]),over:saved.over||{},veto:null};
+if(S.view==='results'&&VQ().some(q=>S.answers[q.id]==null)) S.view='intro';
+const app=document.getElementById('app');
+const SAMPLE_ANS={dressFor:'women',season:NEXT,climate:'mildwet',life:['office','errands'],style:['classic','relaxed'],staples:['leggings','sweatshirt'],refresh:'keep',skin:1,hair:'medium',eyes:'hazel',veins:'mix',metal:'gold',black:'harsh',shape:'pear',fit:['none'],budget:1};
+
+function render(){
+  if(S.view==='intro') renderIntro(); else if(S.view==='quiz') renderQuiz(); else renderResults();
+  save();
+}
+function renderKeep(){const y=window.scrollY; render(); window.scrollTo(0,y)}
+function renderIntro(){
+  const strip=[...PAL['Warm Autumn'].n,...PAL['Warm Autumn'].p,...PAL['Warm Autumn'].a].slice(0,8);
+  app.innerHTML=`<div class="intro">
+    <div class="mono">${esc(seasonLabel(NEXT))} edition</div>
+    <h1>Everything you need for the season in one quick quiz.</h1>
+    <p class="lede">Tap through a few quick questions about your coloring, climate, days and the things you already love wearing. You get your color season, a ${SEASON_NAME[NEXT].toLowerCase()} capsule of about 18 pieces, a week of outfits, and a shopping link for every piece.</p>
+    <div class="strip" aria-label="Example palette">${strip.map(c=>`<span style="background:${c.hex}" title="${esc(c.name)}"></span>`).join('')}</div>
+    <div class="mono" style="margin-top:-12px">Example: Warm Autumn palette</div>
+    <div class="row"><button class="btn btn-primary" id="start">Start the quiz</button><button class="btn btn-ghost" id="sample">See a sample result</button></div>
+    <div class="promise">
+      <div><b>Color season</b><small>Undertone, depth and contrast, read from your answers</small></div>
+      <div><b>Power colors</b><small>The shades to wear near your face, plus what to skip</small></div>
+      <div><b>Capsule list</b><small>Every piece colored to your palette and priced to your budget. Swap anything you don't like.</small></div>
+      <div><b>A week of outfits</b><small>Seven looks built around your days and your favorite staples</small></div>
+    </div>
+  </div>`;
+  document.getElementById('start').onclick=()=>{S.view='quiz';S.step=0;render()};
+  document.getElementById('sample').onclick=()=>{S.answers={...SAMPLE_ANS};S.over={};S.owned=new Set();S.view='results';render();toast('Showing sample answers. Take the quiz for your own.')};
+}
+function renderQuiz(){
+  const vq=VQ(); if(S.step>=vq.length) S.step=vq.length-1;
+  const q=vq[S.step], val=S.answers[q.id], opts=optsFor(q);
+  const sel=v=> q.type==='multi' ? (val||[]).includes(v) : val===v;
+  app.innerHTML=`<div class="progress" aria-hidden="true"><i style="width:${(S.step/vq.length)*100}%"></i></div>
+  <div class="qhead"><div class="mono">Question ${S.step+1} of ${vq.length}</div><h2>${esc(q.title)}</h2>${q.sub?`<p class="lede">${esc(q.sub)}</p>`:''}</div>
+  <div class="opts" role="group" aria-label="${esc(q.title)}">${opts.map((o,i)=>`<button class="opt" id="opt-${q.id}-${o.v}" data-i="${i}" aria-pressed="${sel(o.v)}">${o.sw?`<span class="dot" style="background:${o.sw}"></span>`:''}<span><span class="t">${esc(o.t)}</span>${o.h?`<span class="h">${esc(o.h)}</span>`:''}</span>${o.flag?`<span class="flag">${o.flag}</span>`:''}</button>`).join('')}</div>
+  <div class="qnav"><button class="linkbtn" id="back">${S.step?'Back':'Cancel'}</button>${q.type==='multi'?`<button class="btn btn-primary" id="next" ${(val||[]).length?'':'disabled'}>${S.step===vq.length-1?'See my capsule':'Continue'}</button>`:''}</div>`;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    const o=opts[+b.dataset.i];
+    if(q.type==='single'){S.answers[q.id]=o.v;save();
+      app.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===b));
+      setTimeout(advance,170);}
+    else{let cur=[...(S.answers[q.id]||[])];
+      if(cur.includes(o.v)) cur=cur.filter(x=>x!==o.v);
+      else{ if(o.excl) cur=[]; else cur=cur.filter(x=>!q.opts.find(p=>p.v===x&&p.excl)); cur.push(o.v); if(cur.length>q.max) cur.shift(); }
+      S.answers[q.id]=cur; renderQuiz(); save(); const f=document.getElementById(b.id); f&&f.focus();}
+  });
+  document.getElementById('back').onclick=()=>{if(S.step){S.step--;render()}else{S.view='intro';render()}};
+  const nx=document.getElementById('next'); if(nx) nx.onclick=advance;
+}
+function advance(){ const vq=VQ(); if(S.step<vq.length-1){S.step++;render();window.scrollTo(0,0)} else {S.view='results';render();window.scrollTo(0,0)} }
+
+function meter(label,val,range,l,r,grad){
+  const pct=Math.max(4,Math.min(96,50+val/range*50));
+  return `<div class="meter"><span class="lab">${label}</span><div class="track" style="background:${grad}"><b style="left:${pct}%"></b></div><div class="ends"><span>${l}</span><span>${r}</span></div></div>`;
+}
+function swatches(list){return `<div class="swrow">${list.map(c=>`<div class="sw"><span style="background:${c.hex}"></span><b>${esc(c.name)}</b><code>${c.hex}</code></div>`).join('')}</div>`}
+function money(n){return '$'+n.toLocaleString('en-US')}
+
+/* ---------- veto panel ---------- */
+function vetoPanel(i,R){
+  const v=S.veto, r=v.reason;
+  const reasons=[['type','Wrong kind of piece'],['color','Not this color'],['fit','Fit or shape'],['fabric','Fabric or feel'],['price','Price'],['remove',"I don't need it"]];
+  let body='';
+  if(r==='type'){
+    body=`<h4>What would you rather have?</h4><div class="pills">${i.alts.map(x=>`<button class="pill" data-swap="${x.id}">${esc(x.name)}</button>`).join('')||'<span class="hint">No other pieces of this kind fit your season and climate.</span>'}</div>`;
+  } else if(r==='color'){
+    body=`<h4>Pick a color from your palette</h4><div class="pills">${R.allColors.filter(c=>c.name!==i.color.name).map(c=>`<button class="pill" data-color="${esc(c.name)}"><i style="background:${c.hex}"></i>${esc(c.name)}</button>`).join('')}</div>`;
+  } else if(r==='fit'||r==='fabric'){
+    const list=r==='fit'?FITS[i.cat]:FABRICS;
+    body=`<h4>${r==='fit'?'What should change about the fit?':'What should it feel like?'}</h4><div class="pills">${list.map(([l,w])=>`<button class="pill" data-mod="${esc(w)}" aria-pressed="${v.mods.includes(w)}">${esc(l)}</button>`).join('')}</div>
+      <div class="row"><button class="btn btn-primary btn-sm" id="vapply" ${v.mods.length?'':'disabled'}>Update this piece</button></div>`;
+  } else if(r==='price'){
+    body=`<h4>Which way?</h4><div class="pills"><button class="pill" data-tier="-1">Show cheaper options</button><button class="pill" data-tier="1">Show higher-quality options</button></div>`;
+  } else if(r==='remove'){
+    body=`<h4>Remove it from your capsule?</h4><div class="row"><button class="btn btn-primary btn-sm" id="vremove">Remove ${esc(i.name.toLowerCase())}</button><span class="hint">You can restore it later.</span></div>`;
+  }
+  const ask = SAMPLE ? `<div><h4>Or describe what's wrong</h4><p class="hint" style="margin:4px 0 8px">For example: "I never wear long coats. I want something sporty that covers my hips."</p>
+     <textarea id="vtext" placeholder="Tell us what you'd want instead">${esc(v.text||'')}</textarea>
+     <div class="row" style="margin-top:8px"><button class="btn btn-primary btn-sm" id="vask" ${v.busy?'disabled':''}>${v.busy?'Finding a better match…':'Find a better match'}</button>${v.err?`<span class="hint">${esc(v.err)}</span>`:''}</div></div>` : '';
+  return `<div class="veto" id="veto">
+    <div class="row" style="justify-content:space-between"><h4>What's not right about it?</h4><button class="linkbtn" id="vclose">Close</button></div>
+    <div class="pills">${reasons.map(([k,l])=>`<button class="pill" data-reason="${k}" aria-pressed="${r===k}">${l}</button>`).join('')}</div>
+    ${body}${ask}</div>`;
+}
+function setOver(key,patch){S.over[key]={...(S.over[key]||{}),...patch};S.veto=null;renderKeep();}
+function wireVeto(item,R){
+  const box=document.getElementById('veto'); if(!box) return;
+  const key=item.key, cur=S.over[key]||{};
+  box.querySelectorAll('[data-reason]').forEach(b=>b.onclick=()=>{S.veto={key,reason:b.dataset.reason,mods:[...(cur.mods||[])],text:S.veto.text};renderKeep()});
+  document.getElementById('vclose').onclick=()=>{S.veto=null;renderKeep()};
+  box.querySelectorAll('[data-swap]').forEach(b=>b.onclick=()=>{setOver(key,{swap:b.dataset.swap,custom:null,mods:[]});toast('Swapped. The shopping link is updated.')});
+  box.querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{setOver(key,{color:b.dataset.color});toast(`Changed to ${b.dataset.color}.`)});
+  box.querySelectorAll('[data-mod]').forEach(b=>b.onclick=()=>{const w=b.dataset.mod;S.veto.mods=S.veto.mods.includes(w)?S.veto.mods.filter(x=>x!==w):[...S.veto.mods,w];renderKeep()});
+  const ap=document.getElementById('vapply'); if(ap) ap.onclick=()=>{setOver(key,{mods:S.veto.mods});toast('Updated. The shopping link now includes your changes.')};
+  box.querySelectorAll('[data-tier]').forEach(b=>b.onclick=()=>{setOver(key,{tier:(cur.tier||0)+(+b.dataset.tier)});toast('Price range updated.')});
+  const rm=document.getElementById('vremove'); if(rm) rm.onclick=()=>{setOver(key,{removed:true});toast('Removed from your capsule.')};
+  const ta=document.getElementById('vtext'); if(ta) ta.oninput=()=>{S.veto.text=ta.value};
+  const ask=document.getElementById('vask'); if(ask) ask.onclick=()=>askClaude(item,R);
+}
+async function askClaude(item,R){
+  const text=(S.veto.text||'').trim();
+  if(!text){S.veto.err='Type what you would like changed first.';renderKeep();return}
+  const a=S.answers;
+  S.veto.busy=true;S.veto.err='';renderKeep();
+  const prompt=`You are a personal stylist adjusting one piece in a capsule wardrobe.
+Shopper: ${({women:"women's",men:"men's",neutral:'gender-neutral'})[a.dressFor]} clothing. Season: ${seasonLabel(a.season)}. Climate: ${CLIMATE[a.climate]}. Style: ${(a.style||[]).join(', ')}. Color season: ${R.col.season}.
+Palette colors (use only these names): ${R.allColors.map(c=>c.name).join(', ')}.
+Current piece: "${item.name}" in ${item.color.name}. Category: ${CATNAME[item.cat]}.
+Shopper's feedback: "${text.slice(0,600)}"
+Suggest ONE replacement in the same category that fixes the feedback. Never use brand names.
+Reply with only JSON: {"name":"short product name, max 5 words","search":"Amazon search keywords for the cut, details and fabric, max 12 words, no color, no brand names","color":"one palette color name, or empty string to keep the current color","icon":"one of coat|sweater|top|pants|skirt|dress|boot|sneaker|bag|scarf|ring","why":"one short sentence"}`;
+  try{
+    const r=await SAMPLE.json(prompt,{modelTier:'quick',cache:false});
+    if(!r||typeof r.name!=='string'||typeof r.search!=='string') throw {code:'invalid_json'};
+    const color=R.allColors.find(c=>c.name===r.color)?r.color:undefined;
+    const patch={custom:{name:r.name.slice(0,60),look:r.search.slice(0,140),icon:ICONS[r.icon]?r.icon:item.ic,why:typeof r.why==='string'?r.why.slice(0,200):''},swap:null,mods:[]};
+    if(color) patch.color=color;
+    setOver(item.key,patch); toast('Replaced with a better match.');
+  }catch(e){
+    const msg={not_granted:'Claude was not allowed for this page, so use the options above instead.',sampling_disabled:'Claude is not available on this account. Use the options above instead.',rate_limited:'Too many requests just now. Try again in a minute.',refused:'Claude could not help with that. Try rewording it.',invalid_json:'That did not come back in a usable form. Try again.'}[e&&e.code]||'Something went wrong. Try again.';
+    if(e&&['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(e.code)) SAMPLE=null;
+    if(S.veto){S.veto.busy=false;S.veto.err=msg;renderKeep();}
+  }
+}
+
+function renderResults(){
+  const a=S.answers, R=build(a,S.over), {col,pal,items}=R;
+  const need=items.filter(i=>!i.keep&&!S.owned.has(i.key));
+  const lo=need.reduce((s,i)=>s+i.lo,0), hi=need.reduce((s,i)=>s+i.hi,0);
+  const T=items.filter(i=>i.cat==='top'||i.cat==='knit').length, B=items.filter(i=>i.cat==='bottom').length, D=items.filter(i=>i.cat==='dress').length;
+  const combos=T*B+D*Math.max(1,items.filter(i=>i.cat==='outer').length);
+  const shape=SHAPE[a.shape]||SHAPE.unsure;
+  let idx=0;
+  app.innerHTML=`
+  <div class="hero">
+    <div class="mono">${esc(seasonLabel(a.season))} capsule · your color season</div>
+    <h1>${esc(col.season)}</h1>
+    <p class="lede">${esc(pal.d)}</p>
+    <div class="meters">
+      ${meter('Undertone',col.t,6,'Cool','Warm','linear-gradient(90deg,#8FA3C9,#C9C2B8,#D7A465)')}
+      ${meter('Depth',col.d,5,'Light','Deep','linear-gradient(90deg,#EFE7DC,#9C8B7A,#3A2B22)')}
+      ${meter('Clarity',col.c,5,'Soft','Bright','linear-gradient(90deg,#A9A3A0,#B98C8F,#E2366B)')}
+    </div>
+  </div>
+
+  <section class="block">
+    <div class="sechead"><div class="mono">01 · Palette</div><h2>Your power colors</h2></div>
+    <div class="palette">
+      ${swatches(pal.p)}
+      <div class="sechead"><h3>Neutrals to build on</h3></div>
+      ${swatches([...pal.n,{name:pal.metal+' (metal)',hex:pal.metal==='gold'?'#D4AF37':'#C3C7CC'}])}
+      <div class="sechead"><h3>Accents</h3></div>
+      ${swatches(pal.a)}
+      <p class="avoid"><strong>Skip near your face:</strong> ${esc(pal.avoid)}.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="sechead"><div class="mono">02 · Wardrobe planner</div><h2>Your ${items.length}-piece capsule</h2>
+      <p class="lede">Each link opens a live Amazon search for that piece in your color and price range, described by the cut and details of this season's best-selling versions. Don't like something? Tap "Not for me" and we'll swap it.</p>
+      ${AFFILIATE_TAG?'<p class="disclosure">As an Amazon Associate I earn from qualifying purchases.</p>':''}</div>
+    <figure class="collage">
+      <canvas id="collage" width="1080" height="1350" role="img" aria-label="Collage of your ${items.length}-piece capsule in your colors"></canvas>
+      <div class="row"><button class="btn btn-ghost btn-sm" id="savecollage">Save image</button><span class="disclosure">Sized for Instagram and Pinterest.</span></div>
+    </figure>
+    <div class="summary">
+      <div><span class="num">${items.length}</span><small>pieces</small></div>
+      <div><span class="num">${combos}+</span><small>outfit combinations</small></div>
+      <div><span class="num">${need.length?money(lo)+'–'+money(hi):'$0'}</span><small>estimated for the ${need.length} piece${need.length===1?'':'s'} you still need</small></div>
+      <div style="margin-left:auto"><button class="btn btn-ghost" id="copy">Copy shopping list</button></div>
+    </div>
+    ${CATS.map(([k,label])=>{const list=items.filter(i=>i.cat===k); if(!list.length) return '';
+      return `<div class="catlabel">${label}</div><div class="items">${list.map(i=>{idx++;const own=i.keep||S.owned.has(i.key);const open=S.veto&&S.veto.key===i.key;return `
+      <article class="tag${own?' owned':''}${open?' open':''}" data-key="${i.key}">
+        <div class="ic">${icon(i.ic,i.color.hex)}</div>
+        <div class="body">
+          <div class="mono">No. ${String(idx).padStart(2,'0')} · ${label.split(' ')[0]}</div>
+          <h3>${esc(i.name)}${i.staple?'<span class="badge">Your staple</span>':''}${i.edited?'<span class="badge edit">Edited</span>':''}</h3>
+          <span class="chip"><i style="background:${i.color.hex}"></i>${esc(i.color.name)}${i.mods.length?' · '+esc(i.mods.join(', ')):''}</span>
+          <p class="why">${esc(i.why)}</p>
+          <div class="shop"><a href="${i.amazon}" target="_blank" rel="noopener sponsored">${i.keep?'Shop a refresh ↗':'Shop on Amazon ↗'}</a><a class="alt" href="${i.basic}" target="_blank" rel="noopener sponsored">Simpler basics ↗</a><span class="price">${money(i.lo)}–${money(i.hi)}</span></div>
+          <div class="actions">
+            ${i.keep?'':`<label class="own"><input type="checkbox" id="own-${i.key}" data-key="${i.key}" ${own?'checked':''}> I already own this</label>`}
+            ${open?'':`<button class="linkbtn" data-veto="${i.key}">Not for me</button>`}
+            ${i.edited?`<button class="linkbtn" data-reset="${i.key}">Undo changes</button>`:''}
+          </div>
+        </div>
+        ${open?vetoPanel(i,R):''}
+      </article>`}).join('')}</div>`}).join('')}
+    ${R.removed.length?`<div class="removed"><span>Removed:</span>${R.removed.map(r=>`<span>${esc(r.name)} <button class="linkbtn" data-reset="${r.key}">Restore</button></span>`).join('')}</div>`:''}
+  </section>
+
+  <section class="block">
+    <div class="sechead"><div class="mono">03 · Daily outfits</div><h2>A week from your capsule</h2>${items.some(i=>i.staple)?'<p class="lede">Pieces outlined in gold are your staples.</p>':''}</div>
+    <div class="week">${R.outfits.map(o=>`<div class="day"><div class="when"><b>${o.day}</b><span>${esc(o.occ)}</span></div>
+      <div class="look">${o.list.map(p=>`<span class="mini${p.staple?' st':''}" title="${esc(p.color.name+' '+p.name)}">${icon(p.ic,p.color.hex)}</span>`).join('')}
+      <p class="lookdesc">${o.list.map(p=>esc((/wash/.test(p.color.name)&&/wash/i.test(p.name)?'':p.color.name+' ')+p.name.toLowerCase())).join(' + ')}</p></div></div>`).join('')}</div>
+  </section>
+
+  <section class="block">
+    <div class="sechead"><div class="mono">04 · Fit & style</div><h2>Notes from the fitting room</h2></div>
+    <div class="notes">
+      <div class="note"><h3>For your ${a.shape==='unsure'?'frame':esc(Q.find(q=>q.id==='shape').opts.find(o=>o.v===a.shape).t.toLowerCase())+' shape'}</h3><ul>${shape.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
+      <div class="note"><h3>For your style</h3><ul>${(a.style||[]).map(s=>`<li>${esc(STYLE[s])}</li>`).join('')}<li>Wear one power color per outfit and let the neutrals do the rest.</li></ul></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <p>Your color season comes from seasonal color analysis, a long-standing stylist method rather than a lab science, and fit tips follow common tailoring guidance. Treat both as a starting point: if a color doesn't look right on you in the mirror, go with the mirror. Prices are typical ranges, and search results change as Amazon's listings do.</p>
+    ${AFFILIATE_TAG?'<p>As an Amazon Associate I earn from qualifying purchases.</p>':''}
+    <div class="row"><button class="btn btn-ghost" id="edit">Change my answers</button><button class="linkbtn" id="restart">Start over</button></div>
+  </div>`;
+
+  const cv=document.getElementById('collage'); drawCollage(cv,R,a,combos);
+  document.getElementById('savecollage').onclick=()=>saveCollage(cv);
+  app.querySelectorAll('.own input').forEach(cb=>cb.onchange=()=>{const k=cb.dataset.key; cb.checked?S.owned.add(k):S.owned.delete(k); renderKeep()});
+  app.querySelectorAll('[data-veto]').forEach(b=>b.onclick=()=>{const k=b.dataset.veto; S.veto = S.veto&&S.veto.key===k ? null : {key:k,reason:null,mods:[...((S.over[k]||{}).mods||[])]}; renderKeep(); const el=document.querySelector(`[data-key="${k}"]`); el&&el.scrollIntoView({block:'nearest'})});
+  app.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{delete S.over[b.dataset.reset];S.veto=null;renderKeep();toast('Back to the original suggestion.')});
+  if(S.veto){const it=items.find(i=>i.key===S.veto.key); if(it) wireVeto(it,R); else S.veto=null;}
+  document.getElementById('edit').onclick=()=>{S.view='quiz';S.step=0;render();window.scrollTo(0,0)};
+  document.getElementById('restart').onclick=()=>{S.answers={};S.owned=new Set();S.over={};S.view='intro';S.step=0;render();window.scrollTo(0,0)};
+  document.getElementById('copy').onclick=()=>{
+    const txt=`My ${col.season} capsule, ${seasonLabel(a.season)}\n\n`+need.map(i=>`• ${i.name} in ${i.color.name} (${money(i.lo)}–${money(i.hi)})\n  ${i.amazon}`).join('\n');
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Shopping list copied')).catch(()=>{
+      const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');toast('Shopping list copied')}catch(e){toast('Copy failed. Select the item names instead.')} ta.remove();});
+  };
+}
+let tt; function toast(m){const t=document.getElementById('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+window.__build=build; window.__SAMPLE=SAMPLE_ANS;
+render();
+})();
+</script>
+
+</body>
+</html>
